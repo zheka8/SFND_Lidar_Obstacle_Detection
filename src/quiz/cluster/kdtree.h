@@ -49,10 +49,42 @@ struct KdTree
 
 	}
 
+	void searchHelper(std::vector<float> target, Node* node, uint depth, float distanceTol, std::vector<int>& ids)
+	{
+		if(node != NULL)
+		{
+			// check if within search box
+			float x = node->point[0];
+			float y = node->point[1];
+			float xmin = target[0] - distanceTol;
+			float xmax = target[0] + distanceTol;
+			float ymin = target[1] - distanceTol;
+			float ymax = target[1] + distanceTol;
+			if(x >= xmin && x <= xmax && y >= ymin && y <= ymax)
+			{
+				// check if within tolerance radius
+				float dist = sqrt((target[0]-x)*(target[0]-x) + (target[1]-y)*(target[1]-y));
+				if(dist <= distanceTol)
+					ids.push_back(node->id);
+			}
+
+			// check across boundary. if the box limits extend past left or right tree nodes
+			// search there as well
+			if((target[depth%2]-distanceTol) < (node->point[depth%2]))
+				searchHelper(target, node->left, depth+1, distanceTol, ids);
+			if((target[depth%2]+distanceTol) > (node->point[depth%2]))
+				searchHelper(target, node->right, depth+1, distanceTol, ids);
+			
+
+		}
+
+	}
+
 	// return a list of point ids in the tree that are within distance of target
 	std::vector<int> search(std::vector<float> target, float distanceTol)
 	{
 		std::vector<int> ids;
+		searchHelper(target, root, 0, distanceTol, ids);
 		return ids;
 	}
 	
