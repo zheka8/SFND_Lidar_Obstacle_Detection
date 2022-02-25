@@ -89,10 +89,36 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
     ProcessPointClouds<pcl::PointXYZI>* pointProcessor = new ProcessPointClouds<pcl::PointXYZI>();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessor->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
     
+    // perform voxel filtering
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud;
-    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.5f , Eigen::Vector4f (-500, -500, -500, 1.), Eigen::Vector4f (500., 500., 500., 1.));
+    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-20, -6, -40, 1.), Eigen::Vector4f (20., 6., 40., 1.));
     
-    renderPointCloud(viewer, filterCloud, "inputCloud");
+    // segment into road and objects
+    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 100, 0.2);
+    //renderPointCloud(viewer, segmentCloud.first, "cloudObst", Color(1,0,0));
+    renderPointCloud(viewer, segmentCloud.second, "cloudRoad", Color(0,1,0));
+
+    // further divide objects into clusters
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.8, 10, 400);
+
+    // render clusters
+    int clusterId = 0;
+    std::vector<Color> colors = {Color(0,1,1), Color(1,1,0), Color(0,0,1)};
+
+    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : cloudClusters)
+    {
+        std::cout << "cluster size ";
+        pointProcessor->numPoints(cluster);
+        renderPointCloud(viewer,cluster,"obstCloud"+std::to_string(clusterId),colors[clusterId%(colors.size())]);
+        
+        // add bounding boxes
+        Box box = pointProcessor->BoundingBox(cluster);
+        renderBox(viewer,box,clusterId);
+        
+        ++clusterId;
+    }
+
+    //renderPointCloud(viewer, filterCloud, "inputCloud");
 }
 
 
