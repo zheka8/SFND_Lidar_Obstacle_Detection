@@ -17,10 +17,11 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
     // perform voxel filtering
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud;
-    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-20, -6, -40, 1.), Eigen::Vector4f (20., 6., 40., 1.));
-    
+    //filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-20, -6, -40, 1.), Eigen::Vector4f (20., 6., 40., 1.));
+    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-200, -60, -40, 1.), Eigen::Vector4f (200., 60., 40., 1.));
+
     // segment into road and objects
-    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 100, 0.9);
+    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 1000, 0.1);
     renderPointCloud(viewer, segmentCloud.first, "cloudObst", Color(1,0,0));
     renderPointCloud(viewer, segmentCloud.second, "cloudRoad", Color(0,1,0));
 
