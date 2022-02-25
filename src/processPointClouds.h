@@ -18,6 +18,7 @@
 #include <ctime>
 #include <chrono>
 #include "render/box.h"
+#include <unordered_set>
 
 template<typename PointT>
 class ProcessPointClouds {
@@ -30,9 +31,11 @@ public:
 
     void numPoints(typename pcl::PointCloud<PointT>::Ptr cloud);
 
+    //std::unordered_set<int> Ransac(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceTol);
+
     typename pcl::PointCloud<PointT>::Ptr FilterCloud(typename pcl::PointCloud<PointT>::Ptr cloud, float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint);
 
-    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud);
+    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> SeparateClouds(const std::unordered_set<int> inliers, typename pcl::PointCloud<PointT>::Ptr cloud);
 
     std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> SegmentPlane(typename pcl::PointCloud<PointT>::Ptr cloud, int maxIterations, float distanceThreshold);
 
