@@ -45,6 +45,22 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
         ++clusterId;
     }
     */
+
+    /*
+    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : cloudClusters)
+    {
+        std::cout << "cluster size ";
+        pointProcessor->numPoints(cluster);
+        renderPointCloud(viewer,cluster,"obstCloud"+std::to_string(clusterId),colors[clusterId%(colors.size())]);
+        
+        // add bounding boxes
+        Box box = pointProcessor->BoundingBox(cluster);
+        renderBox(viewer,box,clusterId);
+        
+        ++clusterId;
+    }
+    */
+
     //renderPointCloud(viewer, filterCloud, "inputCloud");
 }
 
@@ -80,13 +96,27 @@ int main (int argc, char** argv)
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
 
-    //setup processor
+    //setup processor for NON-STREAM
     ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
+    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
+    cityBlock(viewer, pointProcessorI, inputCloudI);
+    
+    /* 
+    //setup processor for STREAM
     std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1/");
     auto streamIterator = stream.begin();
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
+    */
 
-    // display the scene
+    // display NON-STREAM
+    while (!viewer->wasStopped ())
+    {
+        viewer->spinOnce ();
+    } 
+
+    /*
+
+    // display the scene STREAM
     while (!viewer->wasStopped ())
     {
         // Clear viewer
@@ -103,4 +133,5 @@ int main (int argc, char** argv)
 
         viewer->spinOnce ();
     }
+    */
 }

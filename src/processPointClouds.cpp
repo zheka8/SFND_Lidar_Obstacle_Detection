@@ -204,7 +204,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 		// Calculate line equation constants
 		float i = (y2-y1)*(z3-z1) - (z2-z1)*(y3-y1);
 		float j = (z2-z1)*(x3-x1) - (x2-x1)*(z3-z1);
-		float k = (x2-x1)*(y3-y1) - (y2*y1)*(x3-x1);
+		float k = (x2-x1)*(y3-y1) - (y2-y1)*(x3-x1);
 
 		float a = i;
 		float b = j;
