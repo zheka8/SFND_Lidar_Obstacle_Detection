@@ -82,7 +82,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     // Perform RANSAC
     std::unordered_set<int> inliersResult;
-    float x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4;
+    float x1, x2, x3, y1, y2, y3, z1, z2, z3;
     float a, b, c, d;
     float denom, dist;
 
@@ -126,10 +126,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
 			// Calculate distance of point to line
 			PointT point = cloud->points[idx];
-			x4 = point.x;
-			y4 = point.y;
-			z4 = point.z;
-			dist = fabs(a*x4 + b*y4 + c*z4 + d)/denom;
+			dist = fabs(a*point.x + b*point.y + c*point.z + d)/denom;
 
 			// If distance is smaller than threshold count it as inlier
 			if (dist < distanceThreshold)
@@ -142,8 +139,6 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 		{
 			inliersResult = inliers;
 		}
-		
-
 	}
 
     auto endTime = std::chrono::steady_clock::now();
@@ -154,20 +149,12 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     return segResult;
 }
 
-//std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 template<typename PointT>
 std::vector<std::vector<int>> ProcessPointClouds<PointT>::Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize)
 {
 
     // Time clustering process
     auto startTime = std::chrono::steady_clock::now();
-
-    //std::vector<typename pcl::PointCloud<PointT>::Ptr> clusters;
-
-    // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
-    // Creating the KdTree object for the search method of the extraction
-    //typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
-    //tree->setInputCloud (cloud);
 
 	// create a KDtree and populate it
 	KdTree* tree = new KdTree;
@@ -177,18 +164,14 @@ std::vector<std::vector<int>> ProcessPointClouds<PointT>::Clustering(typename pc
 		tree->insert(p, idx);
 	}
 
-  	// Time segmentation process
-  	startTime = std::chrono::steady_clock::now();
 	// perform clustering
 	std::vector<std::vector<int>> clusters = euclideanCluster(tree, clusterTolerance, minSize, maxSize, cloud);
-
 
 	auto endTime = std::chrono::steady_clock::now();
   	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
   	std::cout << "clustering found " << clusters.size() << " and took " << elapsedTime.count() << " milliseconds" << std::endl;
 
     return clusters;
-	
 }
 
 template<typename PointT>
@@ -200,7 +183,6 @@ std::vector<std::vector<int>> ProcessPointClouds<PointT>::euclideanCluster(KdTre
 	std::vector<bool> processed(cloud->points.size(), false); 
 
     //Iterate through each point
-	//for(int i = 0; i < points.size(); i++)
 	for(int i = 0; i < cloud->points.size(); i++)
 	{
         //If point has not been processed
@@ -243,7 +225,6 @@ void ProcessPointClouds<PointT>::proximity(KdTree* tree, float distanceTol, int 
 template<typename PointT>
 Box ProcessPointClouds<PointT>::BoundingBox(typename pcl::PointCloud<PointT>::Ptr cluster)
 {
-
     // Find bounding box for one of the clusters
     PointT minPoint, maxPoint;
     pcl::getMinMax3D(*cluster, minPoint, maxPoint);

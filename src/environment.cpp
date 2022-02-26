@@ -8,12 +8,11 @@
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
 
-//void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer)
 void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointClouds<pcl::PointXYZI>* pointProcessor, const pcl::PointCloud<pcl::PointXYZI>::Ptr& inputCloud)
 {
-    // ----------------------------------------------------
+    // ---------------------------------------------------------------
     // -----Open 3D viewer and display city block from pcd file  -----
-    // ----------------------------------------------------
+    // ---------------------------------------------------------------
 
     // perform voxel filtering
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud;
@@ -26,7 +25,6 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
 
     // further divide objects into clusters
-    //std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.8, 10, 1000);
     std::vector<std::vector<int>> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.4, 40, 10000);
 
   	// Render clusters
