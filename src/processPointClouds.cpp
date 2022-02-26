@@ -114,7 +114,7 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 		b = (z2-z1)*(x3-x1) - (x2-x1)*(z3-z1);
 		c = (x2-x1)*(y3-y1) - (y2-y1)*(x3-x1);
 		d = -(a*x1+b*y1+c*z1);
-		
+
         denom = sqrt(a*a + b*b + c*c);
 
 		// Measure distance between every point and fitted line
@@ -166,8 +166,36 @@ std::vector<typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::C
 
     // TODO:: Fill in the function to perform euclidean clustering to group detected obstacles
     // Creating the KdTree object for the search method of the extraction
-    typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
-    tree->setInputCloud (cloud);
+    //typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>);
+    //tree->setInputCloud (cloud);
+
+	// create a KDtree and populate it
+	KdTree* tree = new KdTree;
+  
+    for (int i=0; i<points.size(); i++) 
+    	tree->insert(points[i],i); 
+		
+  	// Time segmentation process
+  	auto startTime = std::chrono::steady_clock::now();
+	// perform clustering
+	std::vector<std::vector<int>> clusters = euclideanCluster(points, tree, 3.0);
+
+
+	auto endTime = std::chrono::steady_clock::now();
+  	auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+  	std::cout << "clustering found " << clusters.size() << " and took " << elapsedTime.count() << " milliseconds" << std::endl;
+
+  	// Render clusters
+  	int clusterId = 0;
+	std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1)};
+  	for(std::vector<int> cluster : clusters)
+  	{
+  		pcl::PointCloud<pcl::PointXYZ>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZ>());
+  		for(int indice: cluster)
+  			clusterCloud->points.push_back(pcl::PointXYZ(points[indice][0],points[indice][1],0));
+  		renderPointCloud(viewer, clusterCloud,"cluster"+std::to_string(clusterId),colors[clusterId%3]);
+  		++clusterId;
+  	}
 
     std::vector<pcl::PointIndices> clusterIndices;
     typename pcl::EuclideanClusterExtraction<PointT> ec;

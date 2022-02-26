@@ -31,8 +31,8 @@ struct KdTree
 			*node = new Node(point, id);
 		else
 		{
-			//calculate current dimension (x or y)
-			uint cd = depth % 2;
+			//calculate current dimension (x, y or z)
+			uint cd = depth % 3;
 			if (point[cd] < (*node)->point[cd])
 				insertHelper(&((*node)->left), depth+1, point, id);
 			else
@@ -56,26 +56,27 @@ struct KdTree
 			// check if within search box
 			float x = node->point[0];
 			float y = node->point[1];
+			float z = node->point[2];
 			float xmin = target[0] - distanceTol;
 			float xmax = target[0] + distanceTol;
 			float ymin = target[1] - distanceTol;
 			float ymax = target[1] + distanceTol;
-			if(x >= xmin && x <= xmax && y >= ymin && y <= ymax)
+			float zmin = target[2] - distanceTol;
+			float zmax = target[2] + distanceTol;
+			if(x >= xmin && x <= xmax && y >= ymin && y <= ymax && z >= zmin && z <= zmax)
 			{
 				// check if within tolerance radius
-				float dist = sqrt((target[0]-x)*(target[0]-x) + (target[1]-y)*(target[1]-y));
+				float dist = sqrt((target[0]-x)*(target[0]-x) + (target[1]-y)*(target[1]-y) + (target[2]-z)*(target[2]-z));
 				if(dist <= distanceTol)
 					ids.push_back(node->id);
 			}
 
 			// check across boundary. if the box limits extend past left or right tree nodes
 			// search there as well
-			if((target[depth%2]-distanceTol) < (node->point[depth%2]))
+			if((target[depth%3]-distanceTol) < (node->point[depth%3]))
 				searchHelper(target, node->left, depth+1, distanceTol, ids);
-			if((target[depth%2]+distanceTol) > (node->point[depth%2]))
+			if((target[depth%3]+distanceTol) > (node->point[depth%3]))
 				searchHelper(target, node->right, depth+1, distanceTol, ids);
-			
-
 		}
 
 	}
