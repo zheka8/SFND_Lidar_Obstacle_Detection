@@ -42,9 +42,9 @@ public:
     
     std::vector<std::vector<int>> Clustering(typename pcl::PointCloud<PointT>::Ptr cloud, float clusterTolerance, int minSize, int maxSize);
     
-    std::vector<std::vector<int>> euclideanCluster(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol, typename pcl::PointCloud<PointT>::Ptr cloud);
+    std::vector<std::vector<int>> euclideanCluster(KdTree* tree, float distanceTol, int minSize, int maxSize, typename pcl::PointCloud<PointT>::Ptr cloud);
 
-    void proximity(const std::vector<std::vector<float>>& points, KdTree* tree, float distanceTol, int pointID, std::vector<bool>& processed, std::vector<int>& cluster, typename pcl::PointCloud<PointT>::Ptr cloud);
+    void proximity(KdTree* tree, float distanceTol, int pointID, std::vector<bool>& processed, std::vector<int>& cluster, typename pcl::PointCloud<PointT>::Ptr cloud);
 
     Box BoundingBox(typename pcl::PointCloud<PointT>::Ptr cluster);
 
