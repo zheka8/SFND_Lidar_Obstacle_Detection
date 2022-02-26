@@ -191,7 +191,7 @@ std::vector<std::vector<int>> ProcessPointClouds<PointT>::euclideanCluster(KdTre
             //Create cluster, which contains point ids
 			std::vector<int> cluster;
 
-            //add all nearby points to this cluster //Proximity(point, cluster)
+            //add all nearby points to this cluster
 			proximity(tree, distanceTol, i, processed, cluster, cloud);
 
             //add clusters
