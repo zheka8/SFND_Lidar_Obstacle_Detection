@@ -21,13 +21,28 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
     
     // segment into road and objects
     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 100, 0.1);
-    renderPointCloud(viewer, segmentCloud.first, "cloudObst", Color(1,0,0));
+    //renderPointCloud(viewer, segmentCloud.first, "cloudObst", Color(1,0,0));
     renderPointCloud(viewer, segmentCloud.second, "cloudRoad", Color(0,1,0));
 
-    /*
-    // further divide objects into clusters
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.8, 10, 1000);
 
+    // further divide objects into clusters
+    //std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.8, 10, 1000);
+    std::vector<std::vector<int>> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.8, 10, 1000);
+
+  	// Render clusters
+  	int clusterId = 0;
+	std::vector<Color> colors = {Color(1,0,0), Color(0,1,0), Color(0,0,1), Color(0,1,1), Color(1,0,1), Color(1,1,0)};
+  	for(std::vector<int> cluster : cloudClusters)
+  	{
+  		pcl::PointCloud<pcl::PointXYZI>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZI>());
+  		for(int indice: cluster)
+  			//clusterCloud->points.push_back(pcl::PointXYZI(points[indice][0],points[indice][1],points[indice][2]));
+              clusterCloud->points.push_back(segmentCloud.first->points[indice]);
+  		renderPointCloud(viewer, clusterCloud,"cluster"+std::to_string(clusterId),colors[clusterId%colors.size()]);
+  		++clusterId;
+  	}
+
+    /*
     // render clusters
     int clusterId = 0;
     std::vector<Color> colors = {Color(0,1,1), Color(1,1,0), Color(0,0,1)};
@@ -96,7 +111,7 @@ int main (int argc, char** argv)
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
 
-    bool motion = true;
+    bool motion = false;
 
     if(motion)
     {
