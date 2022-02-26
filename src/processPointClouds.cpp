@@ -174,11 +174,10 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
     // Perform RANSAC
     std::unordered_set<int> inliersResult;
-	
-	// For max iterations
     float x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4;
-    float i, j, k;
     float a, b, c, d;
+    float denom, dist;
+
 	while(maxIterations--)
 	{
 
@@ -205,14 +204,12 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 		z3 = cloud->points[*itr].z;
 
 		// Calculate line equation constants
-		i = (y2-y1)*(z3-z1) - (z2-z1)*(y3-y1);
-		j = (z2-z1)*(x3-x1) - (x2-x1)*(z3-z1);
-		k = (x2-x1)*(y3-y1) - (y2-y1)*(x3-x1);
+		a = (y2-y1)*(z3-z1) - (z2-z1)*(y3-y1);
+		b = (z2-z1)*(x3-x1) - (x2-x1)*(z3-z1);
+		c = (x2-x1)*(y3-y1) - (y2-y1)*(x3-x1);
 
-		a = i;
-		b = j;
-		c = k;
-		d = -(i*x1+j*y1+k*z1);
+		d = -(a*x1+b*y1+c*z1);
+        denom = sqrt(a*a + b*b + c*c);
 
 		// Measure distance between every point and fitted line
 		for(int idx = 0; idx < cloud->points.size(); idx++)
@@ -226,10 +223,10 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 			x4 = point.x;
 			y4 = point.y;
 			z4 = point.z;
-			d = fabs(a*x4 + b*y4 + c*z4 + d)/sqrt(a*a + b*b + c*c);
+			dist = fabs(a*x4 + b*y4 + c*z4 + d)/denom;
 
 			// If distance is smaller than threshold count it as inlier
-			if (d < distanceThreshold)
+			if (dist < distanceThreshold)
 				inliers.insert(idx);
 
 		}
