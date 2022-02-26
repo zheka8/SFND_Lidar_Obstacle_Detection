@@ -27,7 +27,7 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
     // further divide objects into clusters
     //std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.8, 10, 1000);
-    std::vector<std::vector<int>> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.4, 10, 1000);
+    std::vector<std::vector<int>> cloudClusters = pointProcessor->Clustering(segmentCloud.first, 0.4, 40, 10000);
 
   	// Render clusters
   	int clusterId = 0;
@@ -111,7 +111,7 @@ int main (int argc, char** argv)
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
 
-    bool motion = false;
+    bool motion = true;
 
     if(motion)
     {
