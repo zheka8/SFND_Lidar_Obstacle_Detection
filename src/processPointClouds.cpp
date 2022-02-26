@@ -195,7 +195,6 @@ std::vector<std::vector<int>> ProcessPointClouds<PointT>::euclideanCluster(KdTre
 			proximity(tree, distanceTol, i, processed, cluster, cloud);
 
             //add clusters
-			std::cout << cluster.size() << std::endl;
 			if(cluster.size() >= minSize && cluster.size() <= maxSize)
 			{
 				clusters.push_back(cluster);
