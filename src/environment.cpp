@@ -17,11 +17,11 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
     // perform voxel filtering
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud;
-    //filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-20, -6, -40, 1.), Eigen::Vector4f (20., 6., 40., 1.));
-    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-200, -60, -40, 1.), Eigen::Vector4f (200., 60., 40., 1.));
+    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-20, -6, -40, 1.), Eigen::Vector4f (20., 6., 40., 1.));
+    //filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-200, -60, -40, 1.), Eigen::Vector4f (200., 60., 40., 1.));
 
     // segment into road and objects
-    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 1000, 0.1);
+    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 100, 0.1);
     renderPointCloud(viewer, segmentCloud.first, "cloudObst", Color(1,0,0));
     renderPointCloud(viewer, segmentCloud.second, "cloudRoad", Color(0,1,0));
 
@@ -97,42 +97,45 @@ int main (int argc, char** argv)
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
 
-    //setup processor for NON-STREAM
-    ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
-    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
-    cityBlock(viewer, pointProcessorI, inputCloudI);
-    
-    /* 
-    //setup processor for STREAM
-    std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1/");
-    auto streamIterator = stream.begin();
-    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
-    */
+    bool motion = true;
 
-    // display NON-STREAM
-    while (!viewer->wasStopped ())
+    if(motion)
     {
-        viewer->spinOnce ();
-    } 
+        //setup processor for STREAM
+        ProcessPointClouds<pcl::PointXYZI>* pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
+        std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd("../src/sensors/data/pcd/data_1/");
+        auto streamIterator = stream.begin();
+        pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI;
 
-    /*
+        while (!viewer->wasStopped ())
+        {
+            // Clear viewer
+            viewer->removeAllPointClouds();
+            viewer->removeAllShapes();
 
-    // display the scene STREAM
-    while (!viewer->wasStopped ())
-    {
-        // Clear viewer
-        viewer->removeAllPointClouds();
-        viewer->removeAllShapes();
+            // Load pcd and run obstacle detection process
+            inputCloudI = pointProcessorI->loadPcd((*streamIterator).string());
+            cityBlock(viewer, pointProcessorI, inputCloudI);
 
-        // Load pcd and run obstacle detection process
-        inputCloudI = pointProcessorI->loadPcd((*streamIterator).string());
-        cityBlock(viewer, pointProcessorI, inputCloudI);
+            streamIterator++;
+            if(streamIterator == stream.end())
+                streamIterator = stream.begin();
 
-        streamIterator++;
-        if(streamIterator == stream.end())
-            streamIterator = stream.begin();
-
-        viewer->spinOnce ();
+            viewer->spinOnce ();
+        }
     }
-    */
+    else
+    {
+        //setup processor for NON-STREAM
+        ProcessPointClouds<pcl::PointXYZI>* pointProcessorNS = new ProcessPointClouds<pcl::PointXYZI>();
+        pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloudI = pointProcessorNS->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
+        cityBlock(viewer, pointProcessorNS, inputCloudI);
+
+        // display NON-STREAM
+        while (!viewer->wasStopped ())
+        {
+            viewer->spinOnce ();
+        } 
+    }
+
 }

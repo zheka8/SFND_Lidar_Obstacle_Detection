@@ -180,14 +180,12 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
 
 	while(maxIterations--)
 	{
-
 		// Randomly sample subset and fit line
 		std::unordered_set<int> inliers;
 		while(inliers.size() < 3)
 			inliers.insert(rand()%(cloud->points.size()));
 
 		// Get the coordinates of selected points
-		//float x1, x2, x3, y1, y2, y3, z1, z2, z3;
 		auto itr = inliers.begin();
 		x1 = cloud->points[*itr].x;
 		y1 = cloud->points[*itr].y;
