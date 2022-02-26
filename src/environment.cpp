@@ -17,10 +17,10 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
 
     // perform voxel filtering
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud;
-    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-20, -6, -40, 1.), Eigen::Vector4f (20., 6., 40., 1.));
+    filterCloud = pointProcessor->FilterCloud(inputCloud, 0.2f , Eigen::Vector4f (-20., -6., -2., 1.), Eigen::Vector4f (20., 6., 5., 1.));
     
     // segment into road and objects
-    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 100, 0.3);
+    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessor->SegmentPlane(filterCloud, 100, 0.2);
     //renderPointCloud(viewer, segmentCloud.first, "cloudObst", Color(1,0,0));
     renderPointCloud(viewer, segmentCloud.second, "cloudRoad", Color(0,1,0));
 
@@ -44,42 +44,6 @@ void cityBlock(pcl::visualization::PCLVisualizer::Ptr& viewer, ProcessPointCloud
         
         ++clusterId;
   	}
-
-    /*
-    // render clusters
-    int clusterId = 0;
-    std::vector<Color> colors = {Color(0,1,1), Color(1,1,0), Color(0,0,1)};
-
-    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : cloudClusters)
-    {
-        std::cout << "cluster size ";
-        pointProcessor->numPoints(cluster);
-        //renderPointCloud(viewer,cluster,"obstCloud"+std::to_string(clusterId),colors[clusterId%(colors.size())]);
-        
-        // add bounding boxes
-        Box box = pointProcessor->BoundingBox(cluster);
-        renderBox(viewer,box,clusterId);
-        
-        ++clusterId;
-    }
-    */
-
-    /*
-    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : cloudClusters)
-    {
-        std::cout << "cluster size ";
-        pointProcessor->numPoints(cluster);
-        renderPointCloud(viewer,cluster,"obstCloud"+std::to_string(clusterId),colors[clusterId%(colors.size())]);
-        
-        // add bounding boxes
-        Box box = pointProcessor->BoundingBox(cluster);
-        renderBox(viewer,box,clusterId);
-        
-        ++clusterId;
-    }
-    */
-
-    //renderPointCloud(viewer, filterCloud, "inputCloud");
 }
 
 
@@ -111,7 +75,7 @@ int main (int argc, char** argv)
     std::cout << "starting enviroment" << std::endl;
 
     pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-    CameraAngle setAngle = XY;
+    CameraAngle setAngle = FPS;
     initCamera(setAngle, viewer);
 
     bool motion = true;
